@@ -1,22 +1,8 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use dotenv::dotenv;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::error::Error;
-use std::sync::Arc;
-
-
-/// Struct for the application state
-/// 
-/// # Arguments
-/// * `client_id` - A string that holds the client id
-/// * `client_secret` - A string that holds the client secret
-#[derive(Clone)]
-struct AppState {
-    client_id: String,
-    client_secret: String,
-}
 
 /// Struct for the authentication response from spotify
 /// 
@@ -46,7 +32,6 @@ struct Track {
 struct TopTracksResponse {
     tracks: Vec<Track>,
 }
-
 
 /// Function to greet a user. this is an API endpoint
 /// with GET request method as the decorator
@@ -92,6 +77,7 @@ async fn get_access_token(client_id: &str, client_secret: &str) -> Result<String
 /// *****************************************************
 /// #TODO: ADD this to an API endpoint
 /// *****************************************************
+/// 
 async fn get_artist_top_tracks(
     access_token: &str,
     artist_id: &str,
@@ -113,9 +99,16 @@ async fn get_artist_top_tracks(
     Ok(top_tracks)
 }
 
+#[get("/tracks")]
+async fn top_tracks_handler() -> impl Responder {
 
-async fn top_tracks_handler(state: web::Data<Arc<AppState>>) -> impl Responder {
-    let access_token = match get_access_token(&state.client_id, &state.client_secret).await {
+    // Load the environment variables from the .env file
+    let client_id: String = env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID must be set");
+    let client_secret: String =
+        env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set");
+        
+    // fetch the access token from spotify's api    
+    let access_token = match get_access_token(&client_id, &client_secret).await {
         Ok(token) => token,
         Err(e) => {
             return HttpResponse::InternalServerError()
@@ -126,6 +119,7 @@ async fn top_tracks_handler(state: web::Data<Arc<AppState>>) -> impl Responder {
     // Example artist ID for Radiohead
     let artist_id = "4Z8W4fKeB5YxbusRsdQVPb";
 
+    // match a response or an error
     match get_artist_top_tracks(&access_token, artist_id).await {
         Ok(top_tracks) => HttpResponse::Ok().json(top_tracks),
         Err(e) => {
@@ -137,21 +131,11 @@ async fn top_tracks_handler(state: web::Data<Arc<AppState>>) -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
 
-    // Load the environment variables from the .env file
-    let client_id = env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID must be set");
-    let client_secret =
-        env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set");
-
-    // Create the application state
-    let app_state = Arc::new(AppState {
-        client_id,
-        client_secret,
-    });
-
     // Start the server
     HttpServer::new(|| App::new()
-        .service(greet)) // Add the greet API endpoint (i.e. fn greet())
+        .service(greet) // Add the greet API endpoint (i.e. fn greet())
         // Add the top_tracks_handler API endpoint (i.e. fn top_tracks_handler()) here!!
+        .service(top_tracks_handler))
         .bind("127.0.0.1:8080")?
         .run()
         .await
