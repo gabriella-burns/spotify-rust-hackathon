@@ -4,6 +4,7 @@ use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::error::Error;
+use std::sync::Arc;
 
 
 /// Struct for the application state
