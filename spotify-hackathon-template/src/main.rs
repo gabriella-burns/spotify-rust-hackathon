@@ -67,10 +67,6 @@ struct Choice {
 
 async fn get_top_tracks(access_token: &str) -> Result<TopTracksResponse, Box<dyn Error>> {
     let client: reqwest::Client = reqwest::Client::new();
-    // let track_or_artist : Result<String, AbortReason> = Input::new("Enter your name", name_validation)
-    // .default_value("track")
-    // .help_message("Please provide your real name")
-    // .display();
     let url = "https://api.spotify.com/v1/me/top/tracks";
 
     let response: reqwest::Response = client
@@ -87,11 +83,7 @@ async fn get_top_tracks(access_token: &str) -> Result<TopTracksResponse, Box<dyn
     Ok(top_tracks)
 }
 
-//get openai response
-
-// async fn get_openai_api_key() -> String {
-//     env::var("OPENAI_API_KEY").expect("OPENAI_API_KEY not set")
-// }
+// write a new function that retrieves your top artists from the spotify api
 
 async fn roast_or_toast_music_taste(top_tracks: &TopTracksResponse, roast: bool, celebrity: &str) {
     dotenv().unwrap();
@@ -138,6 +130,9 @@ async fn roast_or_toast_music_taste(top_tracks: &TopTracksResponse, roast: bool,
 
     println!("\nResponse:{response}\n");
 }
+
+// create a server and define an endpoint to display the spotify data and the roast or toast response or an error message
+// You can use the modules from previous workshops as a reference
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
