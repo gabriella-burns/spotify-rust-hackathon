@@ -99,14 +99,13 @@ async fn get_artist_top_tracks(
     Ok(top_tracks)
 }
 
-#[get("/tracks")]
 async fn top_tracks_handler() -> impl Responder {
 
     // Load the environment variables from the .env file
     let client_id: String = env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID must be set");
     let client_secret: String =
         env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET must be set");
-        
+
     // fetch the access token from spotify's api    
     let access_token = match get_access_token(&client_id, &client_secret).await {
         Ok(token) => token,
@@ -133,9 +132,8 @@ async fn main() -> std::io::Result<()> {
 
     // Start the server
     HttpServer::new(|| App::new()
-        .service(greet) // Add the greet API endpoint (i.e. fn greet())
+        .service(greet)) // Add the greet API endpoint (i.e. fn greet())
         // Add the top_tracks_handler API endpoint (i.e. fn top_tracks_handler()) here!!
-        .service(top_tracks_handler))
         .bind("127.0.0.1:8080")?
         .run()
         .await
