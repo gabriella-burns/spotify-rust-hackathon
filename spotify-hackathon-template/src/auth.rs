@@ -88,8 +88,8 @@ pub fn get_auth_code(
     webbrowser::open(&auth_url)?;
 
     // Start a local server to listen for the callback
-    let listener = TcpListener::bind("127.0.0.1:8080")?;
-    println!("Listening for callback on http://localhost:8080/callback");
+    let listener = TcpListener::bind("127.0.0.1:3000")?;
+    println!("Listening for callback on http://localhost:3000/callback");
 
     for stream in listener.incoming() {
         match stream {
@@ -118,5 +118,8 @@ fn extract_code(request_line: &str) -> Option<String> {
     let url = request_line.split_whitespace().nth(1)?;
     let url = format!("http://localhost{}", url);
     let parsed_url = Url::parse(&url).ok()?;
-    parsed_url.query_pairs().find(|(key, _)| key == "code").map(|(_, value)| value.into_owned())
+    parsed_url
+        .query_pairs()
+        .find(|(key, _)| key == "code")
+        .map(|(_, value)| value.into_owned())
 }
