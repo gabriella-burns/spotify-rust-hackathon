@@ -73,11 +73,6 @@ async fn get_access_token(client_id: &str, client_secret: &str) -> Result<String
 /// # Arguments
 /// * `access_token` - A string that holds the access token
 /// * `artist_id` - A string that holds the artist id
-/// 
-/// *****************************************************
-/// #TODO: ADD this to an API endpoint
-/// *****************************************************
-/// 
 async fn get_artist_top_tracks(
     access_token: &str,
     artist_id: &str,
@@ -99,6 +94,11 @@ async fn get_artist_top_tracks(
     Ok(top_tracks)
 }
 
+/// Function that gets top artist tracks
+/// 
+/// *****************************************************
+/// #TODO: ADD this to an API endpoint
+/// *****************************************************
 async fn top_tracks_handler() -> impl Responder {
 
     // Load the environment variables from the .env file
