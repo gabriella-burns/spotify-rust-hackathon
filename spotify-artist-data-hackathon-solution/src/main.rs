@@ -44,6 +44,7 @@ async fn get_access_token(client_id: &str, client_secret: &str) -> Result<String
         .await?;
 
     let auth_response: AuthResponse = response.json().await?;
+
     Ok(auth_response.access_token)
 }
 

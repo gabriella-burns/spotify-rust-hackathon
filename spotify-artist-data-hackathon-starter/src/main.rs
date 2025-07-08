@@ -132,8 +132,9 @@ async fn main() -> std::io::Result<()> {
 
     // Start the server
     HttpServer::new(|| App::new()
-        .service(greet)) // Add the greet API endpoint (i.e. fn greet())
+        .service(greet) // Add the greet API endpoint (i.e. fn greet())
         // Add the top_tracks_handler API endpoint (i.e. fn top_tracks_handler()) here!!
+        .service(top_tracks_handler))
         .bind("127.0.0.1:8080")?
         .run()
         .await
