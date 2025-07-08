@@ -3,13 +3,13 @@ mod auth;
 use auth::get_auth_code;
 use dialoguer::Input;
 use dotenv::dotenv;
-use openai::{completions::Completion, set_key};
+use openai::chat::{ChatCompletion, ChatCompletionMessage, ChatCompletionMessageRole};
+use openai::set_key;
 use reqwest::header::{AUTHORIZATION, CONTENT_TYPE};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use std::env;
 use std::error::Error;
-use std::io::stdin;
 
 // Types for Spotify response
 #[derive(Deserialize, Debug)]
@@ -151,9 +151,14 @@ fn initialize_openai() -> Result<(), Box<dyn Error>> {
 }
 
 async fn generate_ai_response(prompt: &str, model: &str) -> Result<String, Box<dyn Error>> {
-    let completion = Completion::builder(model)
-        .prompt(prompt)
-        // .suffix("70000")
+    let message = ChatCompletionMessage {
+        role: ChatCompletionMessageRole::User,
+        content: Some(prompt.to_string()),
+        name: None,
+        function_call: None,
+    };
+
+    let completion = ChatCompletion::builder(model, vec![message])
         .create()
         .await?;
 
@@ -161,7 +166,10 @@ async fn generate_ai_response(prompt: &str, model: &str) -> Result<String, Box<d
         .choices
         .first()
         .ok_or("No response from OpenAI")?
-        .text
+        .message
+        .content
+        .as_ref()
+        .ok_or("No content in response")?
         .clone();
 
     Ok(response)
@@ -186,7 +194,7 @@ async fn roast_or_toast_music_taste(
         tracks_list
     );
 
-    let response = generate_ai_response(&prompt, "gpt-3.5-turbo-instruct-0914").await?;
+    let response = generate_ai_response(&prompt, "gpt-3.5-turbo").await?;
     println!("{}", response);
 
     Ok(response)
